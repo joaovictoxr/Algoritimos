@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura Interativa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Aventura Interativa</h1>
+        <div id="story"></div>
+        <div id="choices"></div>
+        <div id="inventory"></div>
+        <div id="score"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 600px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+#story {
+    margin-bottom: 20px;
+}
+
+#choices {
+    margin-bottom: 20px;
+}
+
+button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+#inventory, #score {
+    margin-top: 20px;
+    text-align: left;
+}
+const storyElement = document.getElementById('story');
+const choicesElement = document.getElementById('choices');
+const inventoryElement = document.getElementById('inventory');
+const scoreElement = document.getElementById('score');
+
+let inventory = [];
+let score = 0;
+
+const adventure = {
+    start: {
+        text: "Você está em uma floresta escura. Dois caminhos se abrem à sua frente. Qual você escolhe?",
+        choices: [
+            { text: "Caminho da esquerda", next: 'leftPath' },
+            { text: "Caminho da direita", next: 'rightPath' }
+        ]
+    },
+    leftPath: {
+        text: "Você encontra um rio. Há uma ponte velha e uma canoa. Como você atravessa?",
+        choices: [
+            { text: "Usar a ponte", next: 'bridge' },
+            { text: "Usar a canoa", next: 'canoe' }
+        ]
+    },
+    rightPath: {
+        text: "Você encontra uma caverna. Está escura e silenciosa. O que você faz?",
+        choices: [
+            { text: "Entrar na caverna", next: 'caveEntrance' },
+            { text: "Continuar andando", next: 'walk' }
+        ]
+    },
+    bridge: {
+        text: "A ponte é frágil e você cai no rio! Tente novamente.",
+        choices: [
+            { text: "Recomeçar", next: 'start' }
+        ],
+        effect: () => score -= 10
+    },
+    canoe: {
+        text: "Você atravessa o rio em segurança. Parabéns! Você encontrou o tesouro escondido!",
+        choices: [
+            { text: "Recomeçar", next: 'start' }
+        ],
+        effect: () => {
+            inventory.push('tesouro');
+            score += 50;
+        }
+    },
+    caveEntrance: {
+        text: "Dentro da caverna, você encontra uma bifurcação. Você pode seguir em frente ou virar à direita.",
+        choices: [
+            { text: "Seguir em frente", next: 'deepCave' },
+            { text: "Virar à direita", next: 'rightCave' }
+        ]
+    },
+    deepCave: {
+        text: "Você encontra um dragão adormecido! Tente novamente.",
+        choices: [
+            { text: "Recomeçar", next: 'start' }
+        ],
+        effect: () => score -= 20
+    },
+    rightCave: {
+        text: "Você encontra uma espada antiga. Você a pega.",
+        choices: [
+            { text: "Continuar", next: 'swordPath' }
+        ],
+        effect: () => inventory.push('espada')
+    },
+    swordPath: {
+        text: "Com a espada em mãos, você se sente mais confiante e continua sua jornada.",
+        choices: [
+            { text: "Seguir em frente", next: 'finalBattle' }
+        ]
+    },
+    finalBattle: {
+        text: "Você encontra um monstro. O que você faz?",
+        choices: [
+            { text: "Lutar com a espada", next: 'winBattle' },
+            { text: "Fugir", next: 'loseBattle' }
+        ]
+    },
+    winBattle: {
+        text: "Você derrota o monstro com a espada e encontra o tesouro! Parabéns!",
+        choices: [
+            { text: "Recomeçar", next: 'start' }
+        ],
+        effect: () => {
+            inventory.push('tesouro');
+            score += 100;
+        }
+    },
+    loseBattle: {
+        text: "Você tenta fugir, mas o monstro é rápido e te pega! Tente novamente.",
+        choices: [
+            { text: "Recomeçar", next: 'start' }
+        ],
+        effect: () => score -= 30
+    },
+    walk: {
+        text: "Você se perde na floresta e nunca mais é visto. Tente novamente.",
+        choices: [
+            { text: "Recomeçar", next: 'start' }
+        ],
+        effect: () => score -= 10
+    }
+};
+
+function startAdventure(node) {
+    const text = node.text;
+    const choices = node.choices;
+
+    if (node.effect) {
+        node.effect();
+    }
+
+    storyElement.textContent = text;
+    choicesElement.innerHTML = '';
+
+    choices.forEach(choice => {
+        const button = document.createElement('button');
+        button.textContent = choice.text;
+        button.onclick
